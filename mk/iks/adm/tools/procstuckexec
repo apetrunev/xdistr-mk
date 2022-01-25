@@ -1,0 +1,10 @@
+#!/bin/bash
+
+LOG=/tmp/gtm_procstuckexec.log
+
+condition=$1
+waiting_pid=$2
+blocking_pid=$3
+count=$3
+
+echo "$(date) $condition $waiting_pid $blocking_pid $count" >> $LOG

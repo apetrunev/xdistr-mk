@@ -1,0 +1,16 @@
+[Unit]
+Description=Data export from Ivanovo 5000 by JSC Komitex
+After=gtm.service
+BindsTo=gtm.service
+
+[Service]
+Type=simple
+User=gtm
+Group=gtm
+WorkingDirectory=/usr/pfs
+ExecStart=
+ExecStart=/usr/gtm/adm/inotify/ivanovo5k
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

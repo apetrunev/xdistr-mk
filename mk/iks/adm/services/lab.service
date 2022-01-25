@@ -1,0 +1,15 @@
+[Unit]
+Description=Lab service unit by JSC Komitex
+After=gtm.service
+BindsTo=gtm.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+KillMode=none
+ExecStart=
+ExecStart=usermod --shell /bin/bash gtm_lab
+ExecStop=usermod --shell /sbin/nologin gtm_lab
+
+[Install]
+WantedBy=multi-user.target

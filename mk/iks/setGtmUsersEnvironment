@@ -1,0 +1,25 @@
+#!/bin/bash -x
+
+# gtm group id
+GTM_GID=$(getent group gtm | cut -d: -f3)
+# home directory of gtm user
+GTM_HOME=$(getent passwd gtm | cut -d: -f6)
+
+# Create links to'$GTM_HOME/.iks_profile' and '$GTM_HOME/.profile'
+# for users with 'gtm' primary group and which home directory
+# differs from $GTM_HOME
+
+GTM_USERS=$(awk -F: -v gid=$GTM_GID '$4 == gid { print $1 }' /etc/passwd)
+
+for user in $GTM_USERS; do
+  if test $user = gtm; then continue; fi
+  # find user home dir
+  home=$(getent passwd $user | cut -d: -f6)
+  # keep gtm_app profile
+  if test $user = gtm_app; then
+    cd $home && ln -vsf $GTM_HOME/.iks_environment
+  else
+    cd $home && ln -vsf $GTM_HOME/.iks_environment
+    cd $home && ln -vsf $GTM_HOME/.profile
+  fi
+done

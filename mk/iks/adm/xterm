@@ -1,0 +1,10 @@
+#!/bin/bash -x
+
+case $1 in
+start)
+  runuser --login kronemu-net -c "cd /usr/gtm/xm/print/tmp/ && xterm -maximized -display :1 /bin/bash"
+  ;;
+stop)
+  kill -KILL $(ps axo pid,user,comm | grep -v grep | grep xterm | awk '{ print $1 }')
+  ;;
+esac

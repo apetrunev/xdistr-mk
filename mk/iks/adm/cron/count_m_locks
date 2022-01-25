@@ -1,0 +1,8 @@
+#!/bin/bash
+
+. /usr/gtm/.iks_environment
+
+tmpfile=$(mktemp --tmpdir=/tmp)
+lke show -R=M -O=$tmpfile
+cat $tmpfile | grep PID | wc -l > /tmp/count_m_locks
+rm $tmpfile

@@ -1,0 +1,15 @@
+[Unit]
+Description=Xvfb unit by JSC Komitex
+After=networking.service
+
+[Service]
+Type=simple
+User=kronemu-net
+Group=gtm
+WorkingDirectory=/usr/gtm/xm/print/tmp/
+ExecStart=
+ExecStart=Xvfb :1 -ac -screen 0 1280x1024x24
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

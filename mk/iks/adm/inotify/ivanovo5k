@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. /usr/gtm/.iks_environment
+
+while true; do
+	if inotifywait -e CLOSE_WRITE,CLOSE /usr/pfs/ivanovo.txt 2>/dev/null; then
+		cat /usr/pfs/ivanovo.txt | sed -e 's/'`echo -e "\x0d"`'//g' >> /usr/pfs/ivanovo_1.txt && \
+		mumps -run ^%XCMD 'i $$St^zdbimp("MR","/usr/pfs/ivanovo_1.txt",0,$C(10))' && \
+		rm -v /usr/pfs/ivanovo_1.txt
+	fi
+done

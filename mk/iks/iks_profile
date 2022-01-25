@@ -1,0 +1,132 @@
+# enironment variables and setTerminal function
+. /usr/gtm/.iks_environment
+
+umask 002
+
+runConsole() {
+	export TERM=$1
+	mumps -run "$2"
+	logger -t iks "Client $REMOTEHOST $(echo $SSH_CONNECTION | awk '{ print $1 }'). Exit code $(echo $?). Pid $(echo $!)."
+	exit
+}
+
+case $USER in
+"kronemu-net")
+	setTerminal kronemu
+	IP=$(echo $SSH_CONNECTION | awk '{ print $1 }')
+	case $IP in
+	"10.0.101.22") runConsole msm ip2070^userARNET ;;
+	"78.85.72.153") runConsole msm kronemu^userARNET ;;
+	"172.29.1.148") runConsole msm ip1148^userARNET ;;
+	"172.29.1.195") runConsole msm ip1195^userARNET ;;
+	"172.29.1.218") runConsole msm ip1218^userARNET ;;
+	"172.29.1.236") runConsole msm ip1236^userARNET ;;
+	"172.29.1.238") runConsole msm ip1238^userARNET ;;
+	"172.29.1.243") runConsole msm ip1243^userARNET ;;
+	"172.29.1.244") runConsole msm ip1244^userARNET ;;
+	"172.29.1.246") runConsole msm ip1246^userARNET ;;
+	"172.29.1.249") runConsole msm ip2034^userARNET ;;
+	"172.29.1.250") runConsole msm ip1250^userARNET ;;
+	"192.168.0.42") runConsole msm test^userARNET ;;
+	"192.168.0.157") runConsole msm test^userARNET ;;
+	"192.168.0.172") runConsole msm ip0172^userARNET ;;
+	"192.168.2.3") runConsole msm ip2003^userARNET ;;
+	"192.168.2.4") runConsole msm ip2004^userARNET ;;
+	"192.168.2.5") runConsole msm ip2005^userARNET ;;
+	"192.168.2.6") runConsole msm ip2006^userARNET ;;
+	"192.168.2.7") runConsole msm ip2007^userARNET ;;
+	"192.168.2.8") runConsole msm ip2008^userARNET ;;
+	"192.168.2.9") runConsole msm ip2009^userARNET ;;
+	"192.168.2.10") runConsole msm ip2010^userARNET ;;
+	"192.168.2.11") runConsole msm ip2011^userARNET ;;
+	"192.168.2.12") runConsole msm ip2012^userARNET ;;
+	"192.168.2.13") runConsole msm ip2013^userARNET ;;
+	"192.168.2.15") runConsole msm ip2015^userARNET ;;
+	"192.168.2.16") runConsole msm ip2016^userARNET ;;
+	"192.168.2.18") runConsole msm ip2018^userARNET ;;
+	"192.168.2.19") runConsole msm ip2019^userARNET ;;
+	"192.168.2.20") runConsole msm ip2020^userARNET ;;
+	"192.168.2.21") runConsole msm ip2021^userARNET ;;
+	"192.168.2.22") runConsole msm ip2022^userARNET ;;
+	"192.168.2.23") runConsole msm ip2023^userARNET ;;
+	"192.168.2.24") runConsole msm ip2024^userARNET ;;
+	"192.168.2.25") runConsole msm ip2025^userARNET ;;
+	"192.168.2.26") runConsole msm ip2026^userARNET ;;
+	"192.168.2.27") runConsole msm ip2027^userARNET ;;
+	"192.168.2.28") runConsole msm ip2028^userARNET ;;
+	"192.168.2.29") runConsole msm ip2029^userARNET ;;
+	"192.168.2.30") runConsole msm ip2030^userARNET ;;
+	"192.168.2.31") runConsole msm ip2031^userARNET ;;
+	"192.168.2.32") runConsole msm ip2032^userARNET ;;
+	"192.168.2.33") runConsole msm ip2033^userARNET ;;
+	"192.168.2.34") runConsole msm ip2034^userARNET ;;
+	"192.168.2.35") runConsole msm ip2035^userARNET ;;
+	"192.168.2.36") runConsole msm ip2036^userARNET ;;
+	"192.168.2.37") runConsole msm ip2037^userARNET ;;
+	"192.168.2.38") runConsole msm ip2038^userARNET ;;
+	"192.168.2.39") runConsole msm ip2039^userARNET ;;
+	"192.168.2.40") runConsole msm ip2040^userARNET ;;
+	"192.168.2.41") runConsole msm ip2041^userARNET ;;
+	"192.168.2.42") runConsole msm ip2042^userARNET ;;
+	"192.168.2.43") runConsole msm ip2043^userARNET ;;
+	"192.168.2.44") runConsole msm ip2044^userARNET ;;
+	"192.168.2.45") runConsole msm ip2045^userARNET ;;
+	"192.168.2.46") runConsole msm ip2046^userARNET ;;
+	"192.168.2.47") runConsole msm ip2047^userARNET ;;
+	"192.168.2.48") runConsole msm kronemu^userARNET ;;
+	"192.168.2.49") runConsole msm ip2049^userARNET ;;
+	"192.168.2.51") runConsole msm ip2051^userARNET ;;
+	"192.168.2.52") runConsole msm ip2052^userARNET ;;
+	"192.168.2.55") runConsole msm ip2055^userARNET ;;
+	"192.168.2.60") runConsole msm ip2060^userARNET ;;
+	"192.168.2.61") runConsole msm ip2061^userARNET ;;
+	"192.168.2.62") runConsole msm ip2062^userARNET ;;
+	"192.168.2.63") runConsole msm ip2063^userARNET ;;
+	"192.168.2.65") runConsole msm ip2065^userARNET ;;
+	"192.168.2.66") runConsole msm ip2066^userARNET ;;
+	"192.168.2.67") runConsole msm ip2067^userARNET ;;
+	"192.168.2.70") runConsole msm ip2070^userARNET ;;
+	"192.168.2.71") runConsole msm ip2071^userARNET ;;
+	"192.168.2.72") runConsole msm ip1239^userARNET ;;
+	"192.168.2.88") runConsole msm ip2088^userARNET ;;
+	esac
+
+	case $REMOTEHOST in
+	"9.1.29.172.in-addr.arpa.") runConsole msm test^userARNET ;;
+	"52.0.168.192.in-addr.arpa.") runConsole msm ip0052^userARNET ;;
+	"77.0.168.192.in-addr.arpa.") runConsole msm kronemu^userARNET ;;
+	"99.0.168.192.in-addr.arpa.") runConsole msm ip2021^userARNET ;;
+	"123.1.29.172.in-addr.arpa.") runConsole msm kronemu^userARNET ;;
+	"168.1.29.172.in-addr.arpa.") runConsole msm ip1168^userARNET ;;
+	"172.0.168.192.in-addr.arpa.") runConsole msm ip0172^userARNET ;;
+	"172.1.29.172.in-addr.arpa.") runConsole msm async01p6^userARNET ;;
+	"175.1.29.172.in-addr.arpa.") runConsole msm ip1175^userARNET ;;
+	"200.1.29.172.in-addr.arpa.") runConsole msm ip1200^userARNET ;;
+	"238.1.29.172.in-addr.arpa.") runConsole msm ip1238^userARNET ;;
+	"243.1.29.172.in-addr.arpa.") runConsole msm ip1243^userARNET ;;
+	"245.1.29.172.in-addr.arpa.") runConsole msm ip1245^userARNET ;;
+	"247.1.29.172.in-addr.arpa.") runConsole msm ip1247^userARNET ;;
+	"248.1.29.172.in-addr.arpa.") runConsole msm ip1248^userARNET ;;
+	"250.1.29.172.in-addr.arpa.") runConsole msm ip1250^userARNET ;;
+	"251.1.29.172.in-addr.arpa.") runConsole msm ip1251^userARNET ;;
+	esac
+	;;
+"ooo")
+	export gtm_procstuckexec="/usr/gtm/adm/tools/procstuckexec"
+	[ $stty_settings = "default" ] || setTerminal gtm
+	stty -onlcr 
+	stty -ixoff -ixon
+	runConsole msm TW^userARNET 
+	;;
+"adm_gtm")
+	[ $stty_settings = "default" ] || setTerminal gtm
+	stty -onlcr 
+	stty -ixoff -ixon
+	runConsole msm TW^userARNET
+	;;
+"gtm")
+	[ $stty_settings = "default" ] || setTerminal gtm	
+	stty -onlcr
+	stty -ixoff -ixon
+	;;
+esac

@@ -1,0 +1,233 @@
+#!/bin/bash -x
+
+. /usr/gtm/.iks_environment
+
+TAG=iks-backup
+
+if test -z "$(command -v bc)"; then logger $TAG "ERROR: 'bc' not found in execution path"; exit 1; fi
+if test -z "$(command -v findmnt)"; then logger $TAG "ERROR: 'findmnt' not found in execution path"; exit 1; fi
+if test -z "$(command -v tar)"; then logger $TAG "ERROR: 'tar' not found in exection path"; exit 1; fi
+if test -z "$(command -v mupip)"; then logger $TAG "ERROR: 'mupip' not found in execution path"; exit 1; fi;
+
+GTM_DIR=/usr/gtm
+GTM_DATA_DIR=$GTM_DIR/data
+GTM_DATA_MJL_DIR=$GTM_DIR/data/mjl
+GTM_BACKUP_DIR=/mnt/backup
+
+if ! test -d $GTM_DIR; then logger $TAG "Directory $GTM_DIR not found"; exit 1; fi
+if ! test -d $GTM_DATA_DIR; then logger $TAG "Directory $GTM_DATA_DIR not found"; exit 1; fi
+if ! test -d $GTM_DATA_MJL_DIR; then logger $TAG "Directory $GTM_DATA_MJL_DIR not found"; exit 1; fi
+if ! test -d $GTM_BACKUP_DIR; then logger $TAG "Directory $GTM_BACKUP_DIR not found"; exit 1; fi
+
+PROG=$(basename $0)
+DEBUG=$(mktemp --tmpdir --suffix=.debug $PROG.XXX)
+
+exec > $DEBUG
+exec 2>&1
+
+#
+# $1 -- required size
+#
+
+enough_space() {
+  local free_space_size
+  local required_size
+
+  free_space_size=`stat -f $GTM_BACKUP_DIR -c "%s * %a" | bc`
+  required_size=$1
+  test $free_space_size -gt $required_size
+}
+
+#
+# calculate total size of database files (.dat files)
+#
+
+database_size() {
+  local size=0
+  local total=0
+  for file in $(find $GTM_DATA_DIR/ -mindepth 1 -maxdepth 1 -type f -name "*.dat"); do
+    size=$(stat -c "%s" $file)
+    total=$(expr $total + $size)
+  done
+  echo $total
+}
+
+# Try to enshure space for specified size in bytes
+#
+# $1 -- required size
+#
+
+enshure_space() {
+  local required_size=$1
+  local count=2
+  local ret=0
+  if ! enough_space $required_size; then
+    ret=1
+    while [ $count -ne 0 ]; do
+      nbackup=$(find $GTM_BACKUP_DIR/ -mindepth 1 -maxdepth 1 -type -d -name "iks_*" | wc -l)
+      # At least 3 last backups should exists
+      if [ $nbackup -gt 3 ]; then
+        # find oldest backup 
+        oldest_backup=$(find $GTM_BACKUP_DIR/ -mindepth 1 -maxdepth 1 -type d -name "iks_*" | sort | head -n 1)
+        rm -vr $oldest_backup
+        if enough_space $required_size; then 
+          ret=0;
+          break;
+        fi
+      else
+        logger $TAG "ERROR: Cannot enshure space for new backup. Please add more space."
+        exit 1
+      fi
+      count=$(expr $count - 1)
+    done
+  fi
+  return $ret
+}
+
+#
+# Start backup procedure
+#
+
+# Ensure we have nfs share mounted to $GTM_BACKUP_DIR
+if [ "x$(findmnt $GTM_BACKUP_DIR -n -t nfs -o FSTYPE)" != "xnfs" ]; then
+  logger -t $TAG "ERROR: Nfs share is not mounted to ${GTM_BACKUP_DIR}. Exit."
+  exit 1
+fi
+
+CURRENT_BACKUP_DIR=$GTM_BACKUP_DIR/iks_$(date +%Y-%m-%d_%H-%M-%S)
+# Create directory and grant permissions
+mkdir -vp $CURRENT_BACKUP_DIR && chown -v gtm:gtm $CURRENT_BACKUP_DIR && chmod -v 775 $CURRENT_BACKUP_DIR
+if test $? -ne 0; then
+  logger -t $TAG "ERROR: Cannot create ${CURRENT_BACKUP_DIR}. Exit."
+  exit 1
+fi
+
+#
+# Compute approximate backup size
+#
+
+# compute size of .dat files in bytes
+db_size=$(database_size)
+# compute size of other files in $GTM_DIR in bytes
+gtmdir_size=$(du -sb $GTM_DIR \
+		 --exclude="*/iks.dat" \
+		 --exclude="*/rfs.dat" \
+		 --exclude="*/m.dat" \
+		 --exclude="*/lib.dat" \
+		 --exclude="*/temp.dat" \
+		 --exclude="*/xm/print/tmp/*" \
+		 --exclude="*/*.mjl*" | cut -f1)
+
+iks_r_size=$(du -sb $GTM_DIR/iks/r | cut -f1)
+lib_r_size=$(du -sb $GTM_DIR/lib/r | cut -f1)
+
+#
+# Find journals modified more then 5 minutes ago
+#
+GTM_BACKUP_JOURNALS_LIST=$CURRENT_BACKUP_DIR/journals.list
+find $GTM_DATA_MJL_DIR/ -mindepth 1 -maxdepth 1 -type f -name "iks.mjl_*" -mmin +5 -print0 > $GTM_BACKUP_JOURNALS_LIST
+journals_size=$(du -scb --files0-from=$GTM_BACKUP_JOURNALS_LIST | tail -n 1 | cut -f1)
+
+#
+# Total approximate backup size
+#
+required_size=$(expr $db_size + $gtmdir_size + $iks_r_size + $lib_r_size + $journals_size)
+
+if ! enough_space $required_size; then
+  if ! enshure_space $required_size; then
+    logger -t $TAG "ERROR: Cannot ensure space for backup. Exit."
+    exit 1
+  fi
+fi
+
+# Status of backup operation
+status=0
+
+#
+# Backup $GTM_DIR
+# 
+
+logger -t $TAG "INFO: Start new backup. Current backup dir is ${CURRENT_BACKUP_DIR}."
+logger -t $TAG "INFO: Start $GTM_DIR backup without .dat and journal files."
+
+IFS_ORIG=$IFS
+IFS=";"
+
+(cd $GTM_DIR && tar -v --xattrs \
+                   --exclude="*/iks.dat" \
+                   --exclude="*/rfs.dat" \
+                   --exclude="*/lib.dat" \
+                   --exclude="*/m.dat"   \
+                   --exclude="*/temp.dat" \
+                   --exclude="*/*.mjl*" \
+		   --exclude="*/xm/print/tmp/*" \
+                   -cvzpf $CURRENT_BACKUP_DIR/usr.gtm.no_database_files.tar.gz $(find . -mindepth 1 -maxdepth 1 -printf "%p\n" | tr "\n" ";")) || status=$?
+IFS=$IFS_ORIG
+
+if test $status -ne 0; then
+  logger -t $TAG "INFO: $GTM_DIR backup completed with errors."
+else
+  logger -t $TAG "INFO: $GTM_DIR backup completed succefully."
+fi
+
+#
+# Routines backup
+#
+
+logger -t $TAG "INFO: Start routines backup."
+# Backup /usr/gtm/lib/r directory
+(cd $GTM_DIR/lib && tar --xattrs -cvzpf $CURRENT_BACKUP_DIR/lib.tar.gz r/)
+# Backup /usr/gtm/iks/r directory
+(cd $GTM_DIR/iks && tar --xattrs -cvzpf $CURRENT_BACKUP_DIR/iks.tar.gz r/)
+logger -t $TAG "INFO: Routines backup completed successfully."
+
+#
+# Backup regions first.
+#
+status=0
+journals_status="move"
+
+logger -t $TAG "INFO: Start regions(.dat files) backup."
+
+if ! mupip backup IKS $CURRENT_BACKUP_DIR; then status=$?; journals_status="keep"; logger -t $TAG "INFO: Error occured during backup of IKS region."; fi
+if ! mupip backup RFS $CURRENT_BACKUP_DIR; then status=$?; logger -t $TAG "INFO: Error occured during backup of RFS region."; fi
+if ! mupip backup LIB $CURRENT_BACKUP_DIR; then status=$?; logger -t $TAG "INFO: Error occured during backup of LIB region."; fi
+if ! mupip backup M $CURRENT_BACKUP_DIR; then status=$?; logger -t $TAG "INFO: Error occured during backup of M region."; fi
+if test $status -eq 0; then
+  logger -t $TAG "INFO: Regions backup completed succefully."
+else
+  logger -t $TAG "INFO: Regions backup completed with errors."
+fi
+
+#
+# Backup journals after regions. Order is important.
+#
+logger -t $TAG "INFO: Start journals backup."
+
+#
+# Move(Copy) only iks.mjl_ files. File iks.mjl is a current journal and is updated permanently.
+#
+
+if test -f $GTM_BACKUP_JOURNALS_LIST; then
+  for journal in $(cat $GTM_BACKUP_JOURNALS_LIST | tr '\0' '\n' | cut -f2); do
+    if [ "x$journals_status" = "xmove" ]; then
+      mv -v $journal $CURRENT_BACKUP_DIR/ || status=$?
+    elif [ "x$journals_status" = "xkeep" ]; then
+      cp -vp $journal $CURRENT_BACKUP_DIR/ || status=$?
+    fi
+  done
+else
+  logger -t $TAG "ERROR: File $GTM_BACKUP_JOURNALS_LIST no found."
+  status=1
+fi
+
+if test $status -ne 0; then 
+  logger -t $TAG "INFO: Journals backup completed with errors."
+else
+  logger -t $TAG "INFO: Journals backup completed succefully."
+fi
+
+logger -t $TAG "INFO: Backup procedure completed."
+
+# Save debug info
+mv -v $DEBUG $CURRENT_BACKUP_DIR/

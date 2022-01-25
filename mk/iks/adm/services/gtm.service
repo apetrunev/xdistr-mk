@@ -1,0 +1,18 @@
+[Unit]
+Description=GT.M service unit by JSC Komitex
+After=networking.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Nothing to run, nothing to kill
+KillMode=none
+# Just enable specified users to login
+ExecStart=
+ExecStart=/usr/gtm/adm/start
+# Disable login for specified users and kill mumps processes
+ExecStop=/usr/gtm/adm/stop
+
+[Install]
+WantedBy=multi-user.target
+

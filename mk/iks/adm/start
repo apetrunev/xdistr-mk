@@ -1,0 +1,17 @@
+#!/bin/bash -x
+
+. /usr/gtm/.iks_environment
+
+if [ "x$(whoami)" != "xroot" ]; then
+  echo "Run this program as root"
+  exit 1
+fi
+
+for user in ooo kronemu-net; do
+  usermod --shell /bin/bash $user
+done
+
+# Create temp region if does not exist (may reside on tmpfs)
+if ! test -f $gtm_dist/temp/temp.dat; then
+	runuser -u gtm -g gtm -m -- /bin/sh -c "umask 002 && mupip create -r=temp"
+fi

@@ -1,0 +1,16 @@
+[Unit]
+Description=x11vnc.service by JSC Komitex
+After=xvfb.service
+BindsTo=xvfb.service
+
+[Service]
+Type=simple
+User=kronemu-net
+Group=gtm
+WorkingDirectory=/usr/gtm/xm/print/tmp
+ExecStart=
+ExecStart=/usr/bin/x11vnc -forever -display :1 -no6 -rfbport 5900
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

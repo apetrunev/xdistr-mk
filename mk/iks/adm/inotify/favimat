@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. /usr/gtm/.iks_environment
+
+while true; do
+	if inotifywait -e CLOSE_WRITE,CLOSE /usr/pfs/favimat.txt 2>/dev/null; then
+		cat /usr/pfs/favimat.txt | sed -e 's/'`echo -e "\x0d"`'//g' >> /usr/pfs/favimat1.txt && \
+		mumps -run ^%XCMD 'i $$St^zdbimp("MR","/usr/pfs/favimat1.txt",0,$C(10))' && \
+		rm -v /usr/pfs/favimat1.txt
+	fi	
+done

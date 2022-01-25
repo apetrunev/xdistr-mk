@@ -1,0 +1,25 @@
+#!/bin/sh -ux
+
+. ./iks_environment
+
+GDE_COMMANDS=gde.commands
+
+case $1 in
+structure)
+  # to restore db from backup
+  # other regions will be restored from backup
+  echo "@${GDE_COMMANDS}" | gde
+  mupip create -r=temp
+  ;;
+database)
+  # create empty database from scratch
+  echo "@${GDE_COMMANDS}" | gde
+  mupip create -r=lib
+  mupip create -r=iks 
+  mupip create -r=rfs
+  mupip create -r=m
+  mupip create -r=temp
+  ;;
+esac
+
+[ $stty_settings = "gtm" ] && setTerminal default

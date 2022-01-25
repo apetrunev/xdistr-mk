@@ -1,0 +1,42 @@
+#!/bin/bash -x
+
+. /usr/gtm/.iks_environment
+
+if [ "x$(whoami)" != "xroot" ]; then
+  echo "Run this program as root"
+  exit 1
+fi
+
+# Prevent users from login to system
+for user in ooo kronemu-net; do
+  usermod --shell /sbin/nologin $user
+done
+
+# Send TERM signal to mumps processes
+for pid in $(ps axo pid,user,comm | grep -v grep | grep mumps | awk '{ print $1 }'); do
+  kill -TERM $pid
+  sleep 1
+done
+
+echo "Wait 10 seconds" && sleep 10
+
+# Resignaling
+for pid in $(ps axo pid,user,comm | grep -v grep | grep mumps | awk '{ print $1 }'); do
+  kill -TERM $pid
+  sleep 1
+done
+
+# Last check
+LOG=$(mktemp --tmpdir gtm_pending_processes.XXX)
+ps axo pid,user,comm | grep -v grep | grep mumps > $LOG
+if [ $? -eq 0 ]; then
+  for pid in $(cat $LOG | awk '{ print $1 }'); do
+    kill -TERM $pid	
+  done
+  rm -v $LOG
+fi
+
+# Perform rundown
+for region in TEMP IKS M RFS LIB; do
+  mupip rundown -region $region
+done

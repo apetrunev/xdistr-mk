@@ -1,0 +1,25 @@
+#------------------------------------------------------------------------------#
+#                   OFFICIAL DEBIAN REPOS                    
+#------------------------------------------------------------------------------#
+
+###### Debian Main Repos
+deb http://ftp.ru.debian.org/debian/ buster main contrib non-free
+deb-src http://ftp.ru.debian.org/debian/ buster main contrib non-free
+
+deb http://ftp.ru.debian.org/debian/ buster-updates main contrib non-free
+deb-src http://ftp.ru.debian.org/debian/ buster-updates main contrib non-free
+
+deb http://security.debian.org/ buster/updates main
+deb-src http://security.debian.org/ buster/updates main
+
+deb http://ftp.debian.org/debian buster-backports main
+deb-src http://ftp.debian.org/debian buster-backports main
+
+#------------------------------------------------------------------------------#
+#                      UNOFFICIAL  REPOS                       
+#------------------------------------------------------------------------------#
+
+###### 3rd Party Binary Repos
+###NodeJs
+deb https://deb.nodesource.com/node_12.x buster main
+deb-src https://deb.nodesource.com/node_12.x buster main

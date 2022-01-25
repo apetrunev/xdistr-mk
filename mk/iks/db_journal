@@ -1,0 +1,14 @@
+#!/bin/sh -ux
+
+. ./iks_environment
+
+JOURNAL_TOGGLE=$1
+JOURNAL_PATH=$2
+DB_REGION=$3
+
+case $JOURNAL_TOGGLE in
+"enable") mupip set -journal="enable,on,before,filename=${JOURNAL_PATH}" -region ${DB_REGION} ;;
+"disable") mupip set -journal="enable,off,before,filename=${JOURNAL_PATH}" -region ${DB_REGION} ;;
+esac
+
+[ $stty_settings = "gtm" ] && setTerminal default

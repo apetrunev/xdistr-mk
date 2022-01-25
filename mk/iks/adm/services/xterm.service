@@ -1,0 +1,14 @@
+[Unit]
+Description=Xterm unit by JSC Komitex
+After=xvfb.service
+BindsTo=xvfb.service
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/gtm/xm/print/tmp/
+ExecStart=/usr/gtm/adm/xterm start
+ExecStop=/usr/gtm/adm/xterm stop
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

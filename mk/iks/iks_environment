@@ -1,0 +1,52 @@
+export LANG=ru_RU.UTF-8
+export gtm_dist="/usr/gtm"
+export PATH=$PATH:$gtm_dist
+# iks programs
+export gtm_iks="$gtm_dist/iks"
+# xmagic programs
+export gtm_lib="$gtm_dist/lib" 
+# globals
+export gtmgbldir="$gtm_dist/data/mumps.gld" 
+export EDITOR="/usr/bin/vim.tiny"
+export gtm_zquit_anyway="TRUE" 
+# search path for programms
+export gtmroutines="$gtm_dist $gtm_iks/o($gtm_iks/r) $gtm_lib/o($gtm_lib/r)"
+# error handling
+export gtm_ztrap_form="popentryref"
+export gtm_kill_job="$gtm_dist/kill_job.sh"
+export gtm_repl_name=gtm
+export gtm_repl_instance="$gtm_dist/data/mjl/repl"
+export gtm_tpnotacidtime=25
+# utilities
+alias gtm="$gtm_dist/mumps -direct"
+alias GTM="stty -onlcr && $gtm_dist/mumps -direct && stty onlcr"
+alias mumps="$gtm_dist/mumps"
+alias mumpip="$gtm_dist/mumpip"
+alias lke="$gtm_dist/lke"
+alias gde="$gtm_dist/mumps -r ^GDE"
+alias dse="$gtm_dist/dse"
+alias xn="$gtm_dist/mumps -r ^%xn"
+# terminal sequence handling 
+export stty_settings="default"
+export tty_defaults="intr ^C quit ^\ erase ^? kill ^U eof ^D eol undef eol2 undef swtch undef start ^Q stop ^S susp ^Z rprnt ^R werase ^W lnext ^V discard ^O min 1 time 0 -parenb -parodd -cmspar cs8 -hupcl -cstopb cread -clocal -crtscts -ignbrk -brkint -ignpar -parmrk -inpck -istrip -inlcr -igncr icrnl ixon -ixoff -iuclc -ixany -imaxbel iutf8 opost -olcuc -ocrnl onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 ff0 isig icanon iexten echo echoe echok -echonl -noflsh -xcase -tostop -echoprt echoctl echoke -flusho -extproc"
+export tty_gtm="erase undef quit undef kill undef eof undef eol undef eol2 undef swtch undef start ^Q stop ^S susp undef rprnt undef werase undef lnext undef flush undef min 0 time 10"
+
+setTerminal() {
+  case $1 in
+  "gtm")
+   stty $tty_gtm
+   stty_settings="gtm"
+   ;;
+  "kronemu")
+   stty $tty_gtm intr undef
+   stty_settings="kronemu"
+   ;;
+  "default")
+   stty $tty_defaults
+   stty_settings="default"
+   ;;
+  esac
+}
+# printable and non-printable symbols
+export gtm_pattern_file=$gtm_dist/pattable_N
+export gtm_pattern_table=xmagic
