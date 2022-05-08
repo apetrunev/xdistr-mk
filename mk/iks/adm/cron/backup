@@ -92,7 +92,8 @@ enshure_space() {
 # Start backup procedure
 #
 
-CURRENT_BACKUP_DIR=$GTM_BACKUP_DIR/iks_$(date +%Y-%m-%d_%H-%M-%S)
+CURRENT_BACKUP_NAME=iks_$(date +%Y-%m-%d_%H-%M-%S)
+CURRENT_BACKUP_DIR=$GTM_BACKUP_DIR/$CURRENT_BACKUP_NAME
 # Create directory and grant permissions
 mkdir -vp $CURRENT_BACKUP_DIR && chown -v gtm:gtm $CURRENT_BACKUP_DIR && chmod -v 775 $CURRENT_BACKUP_DIR
 if test $? -ne 0; then
@@ -227,9 +228,6 @@ fi
 
 logger -t $TAG "INFO: Backup procedure completed."
 
-# Save debug info
-mv -v $DEBUG $CURRENT_BACKUP_DIR/
-
 #
 # Start moving backup from local device to nfs share
 #
@@ -258,3 +256,6 @@ if ! cp -vRa $CURRENT_BACKUP_DIR $GTM_BACKUP_SHARE_DIR/; then
 else
   logger -t $TAG "INFO: Moving $CURRENT_BACKUP_DIR from local storage to nfs share completed succesfully."
 fi
+
+# Save debug info
+mv -v $DEBUG $GTM_BACKUP_SHARE_DIR/$CURRENT_BACKUP_NAME
