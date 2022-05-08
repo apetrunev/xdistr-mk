@@ -251,7 +251,7 @@ if ! enough_space $GTM_BACKUP_SHARE_DIR $required_size; then
   fi
 fi
 
-if ! cp -vRa $CURRENT_BACKUP_DIR $GTM_BACKUP_SHARE_DIR/; then
+if ! cp -vRp $CURRENT_BACKUP_DIR $GTM_BACKUP_SHARE_DIR/; then
   logger -t $TAG "ERROR: Moving $CURRENT_BACKUP_DIR from local storage to nfs share completed with errors."
 else
   logger -t $TAG "INFO: Moving $CURRENT_BACKUP_DIR from local storage to nfs share completed succesfully."
