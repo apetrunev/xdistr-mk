@@ -14,6 +14,7 @@ GTM_DATA_DIR=$GTM_DIR/data
 GTM_DATA_MJL_DIR=$GTM_DIR/data/mjl
 GTM_BACKUP_DIR=/mnt/backup
 GTM_BACKUP_SHARE_DIR=/mnt/backup_share
+NBACKUP_KEEP=3
 
 if ! test -d $GTM_DIR; then logger $TAG "Directory $GTM_DIR not found"; exit 1; fi
 if ! test -d $GTM_DATA_DIR; then logger $TAG "Directory $GTM_DATA_DIR not found"; exit 1; fi
@@ -65,13 +66,13 @@ enshure_space() {
   local required_size=$2
   local count=2
   local ret=0
-  local nlast_backups=1
+  local nlast_backups=$NBACKUP_KEEP
   logger -t $TAG "INFO: Trying enshure $required_size bytes in $dir"
   if ! enough_space $dir $required_size ; then
     ret=1
     while [ $count -ne 0 ]; do
       nbackup=$(find $dir/ -mindepth 1 -maxdepth 1 -type d -name "iks_*" | wc -l)
-      # At least 3 last backups should exists
+      # At least '$nlast_backups' last backups should exists
       if [ $nbackup -gt $nlast_backups ]; then
         # find oldest backup 
         oldest_backup=$(find $dir/ -mindepth 1 -maxdepth 1 -type d -name "iks_*" | sort | head -n 1)
