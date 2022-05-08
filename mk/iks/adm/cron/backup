@@ -28,15 +28,14 @@ exec > $DEBUG
 exec 2>&1
 
 #
-# $1 -- required size
+# $1 -- dir
+# $2 -- required size
 #
 
 enough_space() {
   local free_space_size
   local dir=$1
   local required_size=$2
-  
-
   free_space_size=`stat -f $dir -c "%s * %a" | bc`
   test $free_space_size -gt $required_size
 }
@@ -57,7 +56,8 @@ database_size() {
 
 # Try to enshure space for specified size in bytes
 #
-# $1 -- required size
+# $1 -- dir
+# $2 -- required_size
 #
 
 enshure_space() {
@@ -65,12 +65,14 @@ enshure_space() {
   local required_size=$2
   local count=2
   local ret=0
+  local nlast_backups=1
+  logger -t $TAG "INFO: Trying enshure $required_size bytes in $dir"
   if ! enough_space $dir $required_size ; then
     ret=1
     while [ $count -ne 0 ]; do
-      nbackup=$(find $dir/ -mindepth 1 -maxdepth 1 -type -d -name "iks_*" | wc -l)
+      nbackup=$(find $dir/ -mindepth 1 -maxdepth 1 -type d -name "iks_*" | wc -l)
       # At least 3 last backups should exists
-      if [ $nbackup -gt 3 ]; then
+      if [ $nbackup -gt $nlast_backups ]; then
         # find oldest backup 
         oldest_backup=$(find $dir/ -mindepth 1 -maxdepth 1 -type d -name "iks_*" | sort | head -n 1)
         rm -vr $oldest_backup
@@ -79,7 +81,7 @@ enshure_space() {
           break;
         fi
       else
-        logger $TAG "ERROR: Cannot enshure space for new backup. Please add more space."
+        logger -t $TAG "ERROR: Cannot enshure space for new backup. Please add more space."
         exit 1
       fi
       count=$(expr $count - 1)
@@ -251,6 +253,7 @@ if ! enough_space $GTM_BACKUP_SHARE_DIR $required_size; then
   fi
 fi
 
+logger -t $TAG "INFO: Copying $CURRENT_BACKUP to $GTM_BACKUP_SHARE_DIR"
 if ! cp -vRp $CURRENT_BACKUP_DIR $GTM_BACKUP_SHARE_DIR/; then
   logger -t $TAG "ERROR: Moving $CURRENT_BACKUP_DIR from local storage to nfs share completed with errors."
 else
@@ -258,4 +261,4 @@ else
 fi
 
 # Save debug info
-mv -v $DEBUG $GTM_BACKUP_SHARE_DIR/$CURRENT_BACKUP_NAME
+mv -v $DEBUG $GTM_BACKUP_SHARE_DIR/$CURRENT_BACKUP_NAME/
