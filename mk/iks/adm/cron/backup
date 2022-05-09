@@ -95,6 +95,12 @@ enshure_space() {
 # Start backup procedure
 #
 
+# Ensure we have a device mounted to $GTM_BACKUP_DIR
+if ! findmnt -n --real -O rw $GTM_BACKUP_DIR > /dev/null; then
+  logger -t $TAG "ERROR: Device is not mounted to $GTM_BACKUP_DIR"
+  exit 1
+fi
+
 CURRENT_BACKUP_NAME=iks_$(date +%Y-%m-%d_%H-%M-%S)
 CURRENT_BACKUP_DIR=$GTM_BACKUP_DIR/$CURRENT_BACKUP_NAME
 # Create directory and grant permissions
@@ -235,17 +241,11 @@ logger -t $TAG "INFO: Backup procedure completed."
 # Start moving backup from local device to nfs share
 #
 
-# Ensure we have a device mounted to $GTM_BACKUP_SHARE_DIR
-if ! findmnt -n --real -O rw $GTM_BACKUP_SHARE_DIR > /dev/null; then
-  logger -t $TAG "ERROR: Device is not mounted to $GTM_BACKUP_SHARE_DIR"
+# Ensure we have nfs share mounted to $GTM_BACKUP_SHARE_DIR
+if [ "x$(findmnt $GTM_BACKUP_SHARE_DIR -n -t nfs -o FSTYPE)" != "xnfs" ]; then
+  logger -t $TAG "ERROR: Nfs share is not mounted to $GTM_BACKUP_SHARE_DIR. Exit."
   exit 1
 fi
-
-# Ensure we have nfs share mounted to $GTM_BACKUP_DIR
-#if [ "x$(findmnt $GTM_BACKUP_DIR -n -t nfs -o FSTYPE)" != "xnfs" ]; then
-#  logger -t $TAG "ERROR: Nfs share is not mounted to ${GTM_BACKUP_DIR}. Exit."
-#  exit 1
-#fi
 
 if ! enough_space $GTM_BACKUP_SHARE_DIR $required_size; then
   if ! enshure_space $GTM_BACKUP_SHARE_DIR $required_size; then
