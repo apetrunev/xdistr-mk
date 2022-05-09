@@ -14,7 +14,7 @@ GTM_DATA_DIR=$GTM_DIR/data
 GTM_DATA_MJL_DIR=$GTM_DIR/data/mjl
 GTM_BACKUP_DIR=/mnt/backup
 GTM_BACKUP_SHARE_DIR=/mnt/backup_share
-NBACKUP_KEEP=3
+NBACKUP_KEEP=1
 
 if ! test -d $GTM_DIR; then logger $TAG "Directory $GTM_DIR not found"; exit 1; fi
 if ! test -d $GTM_DATA_DIR; then logger $TAG "Directory $GTM_DATA_DIR not found"; exit 1; fi
@@ -144,6 +144,7 @@ required_size=$(expr $db_size + $gtmdir_size + $iks_r_size + $lib_r_size + $jour
 if ! enough_space $GTM_BACKUP_DIR $required_size; then
   if ! enshure_space $GTM_BACKUP_DIR $required_size; then
     logger -t $TAG "ERROR: Cannot ensure space for backup. Exit."
+    mv -v $DEBUG $CURRENT_BACKUP_DIR/
     exit 1
   fi
 fi
@@ -244,12 +245,14 @@ logger -t $TAG "INFO: Backup procedure completed."
 # Ensure we have nfs share mounted to $GTM_BACKUP_SHARE_DIR
 if [ "x$(findmnt $GTM_BACKUP_SHARE_DIR -n -t nfs -o FSTYPE)" != "xnfs" ]; then
   logger -t $TAG "ERROR: Nfs share is not mounted to $GTM_BACKUP_SHARE_DIR. Exit."
+  mv -v $DEBUG $CURRENT_BACKUP_DIR/
   exit 1
 fi
 
 if ! enough_space $GTM_BACKUP_SHARE_DIR $required_size; then
   if ! enshure_space $GTM_BACKUP_SHARE_DIR $required_size; then
     logger -t $TAG "ERROR: Cannot ensure space for $GTM_BACKUP_SHARE_DIR. Exit."
+    mv -v $DEBUG $CURRENT_BACKUP_DIR/
     exit 1
   fi
 fi
