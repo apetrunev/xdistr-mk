@@ -257,12 +257,13 @@ if ! enough_space $GTM_BACKUP_SHARE_DIR $required_size; then
   fi
 fi
 
-logger -t $TAG "INFO: Copying $CURRENT_BACKUP_DIR to $GTM_BACKUP_SHARE_DIR"
+logger -t $TAG "INFO: Start copying $CURRENT_BACKUP_DIR to $GTM_BACKUP_SHARE_DIR"
 if ! cp -vRp $CURRENT_BACKUP_DIR $GTM_BACKUP_SHARE_DIR/; then
-  logger -t $TAG "ERROR: Moving $CURRENT_BACKUP_DIR from local storage to nfs share completed with errors."
+  logger -t $TAG "ERROR: Copying $CURRENT_BACKUP_DIR from local storage to $GTM_BACKUP_SHARE_DIR completed with errors."
 else
-  logger -t $TAG "INFO: Moving $CURRENT_BACKUP_DIR from local storage to nfs share completed succesfully."
+	logger -t $TAG "INFO: Copying $CURRENT_BACKUP_DIR from local storage to $GTM_BACKUP_SHARE_DIR completed succesfully."
 fi
 
 # Save debug info
+cp -v $DEBUG $CURRENT_BACKUP_DIR/
 mv -v $DEBUG $GTM_BACKUP_SHARE_DIR/$CURRENT_BACKUP_NAME/
