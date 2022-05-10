@@ -4,10 +4,10 @@
 
 TAG=iks-backup
 
-if test -z "$(command -v bc)"; then logger $TAG "ERROR: 'bc' not found in execution path"; exit 1; fi
-if test -z "$(command -v findmnt)"; then logger $TAG "ERROR: 'findmnt' not found in execution path"; exit 1; fi
-if test -z "$(command -v tar)"; then logger $TAG "ERROR: 'tar' not found in exection path"; exit 1; fi
-if test -z "$(command -v mupip)"; then logger $TAG "ERROR: 'mupip' not found in execution path"; exit 1; fi;
+if test -z "$(command -v bc)"; then logger -t $TAG "ERROR: 'bc' not found in execution path"; exit 1; fi
+if test -z "$(command -v findmnt)"; then logger -t $TAG "ERROR: 'findmnt' not found in execution path"; exit 1; fi
+if test -z "$(command -v tar)"; then logger -t $TAG "ERROR: 'tar' not found in exection path"; exit 1; fi
+if test -z "$(command -v mupip)"; then logger -t $TAG "ERROR: 'mupip' not found in execution path"; exit 1; fi;
 
 GTM_DIR=/usr/gtm
 GTM_DATA_DIR=$GTM_DIR/data
@@ -16,11 +16,11 @@ GTM_BACKUP_DIR=/mnt/backup
 GTM_BACKUP_SHARE_DIR=/mnt/backup_share
 NBACKUP_KEEP=1
 
-if ! test -d $GTM_DIR; then logger $TAG "Directory $GTM_DIR not found"; exit 1; fi
-if ! test -d $GTM_DATA_DIR; then logger $TAG "Directory $GTM_DATA_DIR not found"; exit 1; fi
-if ! test -d $GTM_DATA_MJL_DIR; then logger $TAG "Directory $GTM_DATA_MJL_DIR not found"; exit 1; fi
-if ! test -d $GTM_BACKUP_DIR; then logger $TAG "Directory $GTM_BACKUP_DIR not found"; exit 1; fi
-if ! test -d $GTM_BACKUP_SHARE_DIR; then logger $TAG "Directory $GTM_BACKUP_SHARE_DIR not found"; exit 1; fi
+if ! test -d $GTM_DIR; then logger -t $TAG "Directory $GTM_DIR not found"; exit 1; fi
+if ! test -d $GTM_DATA_DIR; then logger -t $TAG "Directory $GTM_DATA_DIR not found"; exit 1; fi
+if ! test -d $GTM_DATA_MJL_DIR; then logger -t $TAG "Directory $GTM_DATA_MJL_DIR not found"; exit 1; fi
+if ! test -d $GTM_BACKUP_DIR; then logger -t $TAG "Directory $GTM_BACKUP_DIR not found"; exit 1; fi
+if ! test -d $GTM_BACKUP_SHARE_DIR; then logger -t $TAG "Directory $GTM_BACKUP_SHARE_DIR not found"; exit 1; fi
 
 PROG=$(basename $0)
 DEBUG=$(mktemp --tmpdir --suffix=.debug $PROG.XXX)
